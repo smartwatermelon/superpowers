@@ -1,5 +1,14 @@
 # Superpowers — Contributor Guidelines
 
+> **Fork notice:** this is `smartwatermelon/superpowers`, a personal fork of
+> `obra/superpowers` with the SessionStart hook removed (see
+> `claude/remove-forced-session-hook-2026-07-31`) to cut forced per-session
+> context cost. `using-superpowers` is a normal lazily-loaded skill here, not
+> auto-injected at session start — the acceptance test and "real integration"
+> language below describe upstream's contribution bar for *new harness
+> support PRs*, not a guarantee about this fork's own runtime behavior. Not
+> submitting PRs upstream from this fork; kept for reference only.
+
 ## If You Are an AI Agent
 
 Stop. Read this section before doing anything.
