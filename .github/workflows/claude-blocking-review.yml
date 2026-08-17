@@ -1,0 +1,32 @@
+name: Claude Blocking Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  # Pin to v3.1.0 or later, not a caller-level `if: github.actor !=
+  # 'dependabot[bot]'` gate. A job-level `if:` that evaluates false means
+  # this job never dispatches, so a required status check on it never
+  # reports — it stays permanently pending on Dependabot PRs under
+  # branch protection that requires the check, blocking auto-merge
+  # entirely. v3.1.0+ instead skips Dependabot PRs from INSIDE the job,
+  # so the job still runs and reports a real PASS. See
+  # smartwatermelon/github-workflows#115/#117 for the incident that
+  # established this; a caller-level gate was tried and reverted.
+  claude-review:
+    # Track floating @v3, not an exact @v3.x.y. Exact tags are immutable, so a
+    # caller pinned to one silently misses security fixes — that is how 19 repos
+    # never received the GHSA-8q5r-mmjf-575q remediation. See "Prefer floating
+    # @v3 over an exact pin" in smartwatermelon/github-workflows README.md.
+    uses: smartwatermelon/github-workflows/.github/workflows/claude-blocking-review.yml@v3
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+    secrets:
+      claude_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
