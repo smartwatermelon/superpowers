@@ -37,7 +37,7 @@ TEST_PROJECT=$(create_test_project)
 echo "Test project: $TEST_PROJECT"
 
 # Trap to cleanup
-trap "cleanup_test_project $TEST_PROJECT" EXIT
+trap 'cleanup_test_project "$TEST_PROJECT"' EXIT
 
 # Set up minimal Node.js project
 cd "$TEST_PROJECT"
@@ -164,12 +164,15 @@ PLUGIN_DIR=$(cd "$SCRIPT_DIR/../.." && pwd)
 # other concurrent claude sessions.
 echo "Running Claude (plugin-dir: $PLUGIN_DIR, cwd: $TEST_PROJECT)..."
 echo "================================================================================"
-cd "$TEST_PROJECT" && timeout 1800 claude -p "$PROMPT" --plugin-dir "$PLUGIN_DIR" --allowed-tools=all --permission-mode bypassPermissions 2>&1 | tee "$OUTPUT_FILE" || {
+cd "$TEST_PROJECT"
+claude_status=0
+timeout 1800 claude -p "$PROMPT" --plugin-dir "$PLUGIN_DIR" --allowed-tools=all --permission-mode bypassPermissions 2>&1 | tee "$OUTPUT_FILE" || claude_status=$?
+if [ "$claude_status" -ne 0 ]; then
     echo ""
     echo "================================================================================"
-    echo "EXECUTION FAILED (exit code: $?)"
+    echo "EXECUTION FAILED (exit code: $claude_status)"
     exit 1
-}
+fi
 echo "================================================================================"
 
 echo ""
@@ -185,8 +188,16 @@ TEST_PROJECT_REAL=$(cd "$TEST_PROJECT" && pwd -P)
 # Claude normalizes the cwd to a directory name by replacing every non-alphanumeric
 # character with `-` (so `_`, `.`, `/` all become `-`).
 SESSION_DIR="$HOME/.claude/projects/$(echo "$TEST_PROJECT_REAL" | sed 's|[^a-zA-Z0-9]|-|g')"
-# `|| true` prevents pipefail killing the script if ls gets SIGPIPE'd by head.
-SESSION_FILE=$(ls -t "$SESSION_DIR"/*.jsonl 2>/dev/null | head -1 || true)
+# Pick the most recently modified transcript without parsing `ls`, so odd
+# filenames are handled correctly. `-nt` compares mtimes; a glob that matches
+# nothing leaves SESSION_FILE empty, which is checked below.
+SESSION_FILE=""
+for candidate in "$SESSION_DIR"/*.jsonl; do
+    [ -f "$candidate" ] || continue
+    if [ -z "$SESSION_FILE" ] || [ "$candidate" -nt "$SESSION_FILE" ]; then
+        SESSION_FILE="$candidate"
+    fi
+done
 
 if [ -z "$SESSION_FILE" ]; then
     echo "ERROR: Could not find session transcript file"

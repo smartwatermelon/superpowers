@@ -388,7 +388,10 @@ STOP_TEST_PID=""
 echo ""
 echo "=== Results: $passed passed, $failed failed, $skipped skipped ==="
 
+# No explicit `exit 0` here: falling off the end already exits 0, and a
+# trailing unconditional exit makes ShellCheck treat the EXIT trap as
+# unreachable, reporting the live `cleanup` function as never invoked
+# (SC2329).
 if [[ $failed -gt 0 ]]; then
   exit 1
 fi
-exit 0
