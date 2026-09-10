@@ -1,0 +1,135 @@
+// Repo-local markdownlint config. run-standards.sh prefers this over the
+// canonical fleet config when it is present, so anything set here applies to
+// CI as well as local runs.
+//
+// IMPORTANT: a repo-local config REPLACES the canonical one rather than
+// extending it, so the `config` block below must mirror
+// github-workflows/standards/markdownlint.json. Without it this repo would
+// silently pick up rules the fleet has turned off (MD013 line-length being the
+// noisy one) and diverge from the standard in ways unrelated to the
+// grandfathering this file exists for. If the canonical config changes, this
+// block needs the same change.
+//
+// Why these 64 files are ignored:
+//
+// This repo is a detached fork of obra/superpowers. GitHub no longer records a
+// fork parent, but the history does: of the 64 Markdown files listed below,
+// every one was written upstream -- 415 commits by Jesse Vincent, 42 by Drew
+// Ritter, and a long tail of other contributors. Not one was authored by the
+// owner of this fork. The only Markdown file here that is his own work is
+// CLAUDE.md, and it already passes, so it is deliberately absent from this
+// list and stays linted.
+//
+// Fixing the 775 findings by hand would mean reformatting several dozen files
+// of someone else's prose -- other people's skill docs, design specs, and
+// release notes -- to satisfy a linter this fork adopted after the fact. That
+// is a rewrite of upstream writing, not a cleanup, and it would make every
+// future merge from upstream conflict. So the pre-existing debt is
+// grandfathered and the standard is enforced on everything else.
+//
+// Why an explicit file list rather than a directory glob:
+//
+// The debt is diffuse, so no glob is narrower than this list. Ignoring
+// `skills/**` and `docs/**` -- the two obvious candidates -- covers only 54 of
+// the 64 dirty files, still leaves README.md, RELEASE-NOTES.md,
+// CODE_OF_CONDUCT.md, GEMINI.md, tests/ and .github/ failing, and swallows 23
+// files that are already clean. That would leave markdownlint scanning 2 files
+// out of 89, which is switching the linter off, not grandfathering. Listing
+// the files individually keeps the other 25 clean files under the full fleet
+// ruleset, and any new Markdown file is linted from the day it is added.
+//
+// Why not disable the offending rules instead:
+//
+// The debt is not uniform enough for a rule-level cut. MD032 accounts for 439
+// findings across 52 files and MD031 another 202 across 33, but the tail is
+// spread thin -- MD024, MD025, MD026, MD038 and MD056 appear in a single file
+// each. Reaching a clean run by disabling rules would take all 14, globally,
+// including in files that do not need it. A path-scoped ignore keeps every
+// rule live everywhere else.
+//
+// Maintenance: this list only ever shrinks. If you substantively edit one of
+// these files, delete its entry and fix its findings in the same change.
+// Note that markdownlint-cli2 does not warn when an ignore pattern matches
+// nothing, so an entry for a file that was renamed or deleted upstream will
+// sit here silently -- prune it when you notice it.
+{
+  "ignores": [
+    ".github/ISSUE_TEMPLATE/bug_report.md",
+    ".github/ISSUE_TEMPLATE/feature_request.md",
+    ".github/ISSUE_TEMPLATE/platform_support.md",
+    ".github/PULL_REQUEST_TEMPLATE.md",
+    ".opencode/INSTALL.md",
+    "CODE_OF_CONDUCT.md",
+    "docs/plans/2025-11-22-opencode-support-design.md",
+    "docs/plans/2025-11-22-opencode-support-implementation.md",
+    "docs/plans/2025-11-28-skills-improvements-from-user-feedback.md",
+    "docs/plans/2026-01-17-visual-brainstorming.md",
+    "docs/README.opencode.md",
+    "docs/superpowers/plans/2026-01-22-document-review-system.md",
+    "docs/superpowers/plans/2026-02-19-visual-brainstorming-refactor.md",
+    "docs/superpowers/plans/2026-03-11-zero-dep-brainstorm-server.md",
+    "docs/superpowers/plans/2026-03-23-codex-app-compatibility.md",
+    "docs/superpowers/plans/2026-04-06-worktree-rototill.md",
+    "docs/superpowers/plans/2026-05-06-lift-drill-into-evals.md",
+    "docs/superpowers/plans/2026-05-07-pi-extension-and-evals.md",
+    "docs/superpowers/plans/2026-06-09-sdd-task-scoped-review-dispatch.md",
+    "docs/superpowers/plans/2026-06-09-visual-companion-issues.md",
+    "docs/superpowers/plans/2026-06-10-visual-companion-auth-hardening.md",
+    "docs/superpowers/plans/2026-06-11-visual-companion-final-hardening-fixup.md",
+    "docs/superpowers/plans/2026-07-06-sdd-plan-scoped-workspace.md",
+    "docs/superpowers/plans/2026-07-15-sdd-fix-loop-redesign.md",
+    "docs/superpowers/specs/2026-01-22-document-review-system-design.md",
+    "docs/superpowers/specs/2026-02-19-visual-brainstorming-refactor-design.md",
+    "docs/superpowers/specs/2026-03-11-zero-dep-brainstorm-server-design.md",
+    "docs/superpowers/specs/2026-03-23-codex-app-compatibility-design.md",
+    "docs/superpowers/specs/2026-04-06-worktree-rototill-design.md",
+    "docs/superpowers/specs/2026-06-10-strict-cost-sdd-design.md",
+    "docs/superpowers/specs/2026-07-15-sdd-fix-loop-redesign-design.md",
+    "docs/windows/polyglot-hooks.md",
+    "GEMINI.md",
+    "README.md",
+    "RELEASE-NOTES.md",
+    "skills/brainstorming/visual-companion.md",
+    "skills/dispatching-parallel-agents/SKILL.md",
+    "skills/executing-plans/SKILL.md",
+    "skills/receiving-code-review/SKILL.md",
+    "skills/requesting-code-review/code-reviewer.md",
+    "skills/requesting-code-review/SKILL.md",
+    "skills/subagent-driven-development/re-review-prompt.md",
+    "skills/subagent-driven-development/SKILL.md",
+    "skills/subagent-driven-development/task-reviewer-prompt.md",
+    "skills/systematic-debugging/condition-based-waiting.md",
+    "skills/systematic-debugging/CREATION-LOG.md",
+    "skills/systematic-debugging/defense-in-depth.md",
+    "skills/systematic-debugging/root-cause-tracing.md",
+    "skills/systematic-debugging/SKILL.md",
+    "skills/systematic-debugging/test-pressure-1.md",
+    "skills/systematic-debugging/test-pressure-2.md",
+    "skills/systematic-debugging/test-pressure-3.md",
+    "skills/test-driven-development/SKILL.md",
+    "skills/using-git-worktrees/SKILL.md",
+    "skills/using-superpowers/references/codex-tools.md",
+    "skills/using-superpowers/SKILL.md",
+    "skills/verification-before-completion/SKILL.md",
+    "skills/writing-plans/SKILL.md",
+    "skills/writing-skills/anthropic-best-practices.md",
+    "skills/writing-skills/examples/CLAUDE_MD_TESTING.md",
+    "skills/writing-skills/persuasion-principles.md",
+    "skills/writing-skills/SKILL.md",
+    "skills/writing-skills/testing-skills-with-subagents.md",
+    "tests/claude-code/README.md"
+  ],
+  "config": {
+    "default": true,
+    "MD013": false,
+    "MD024": {
+      "siblings_only": true
+    },
+    "MD029": false,
+    "MD033": false,
+    "MD036": false,
+    "MD040": false,
+    "MD046": false,
+    "MD060": false
+  }
+}

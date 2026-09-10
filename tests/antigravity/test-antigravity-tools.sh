@@ -18,6 +18,12 @@ SKILL="$REPO_ROOT/skills/using-superpowers/SKILL.md"
 
 fail() { echo "FAIL: $*" >&2; exit 1; }
 
+# Literal backtick. The search patterns below are Markdown code spans, so the
+# backticks are part of the text being matched. Building them from this
+# variable keeps the pattern strings byte-for-byte identical while letting
+# ShellCheck see that no expansion was intended (SC2016).
+bt='`'
+
 echo "test-antigravity-tools: checking Antigravity tool mapping"
 
 # --- Mapping exists ---------------------------------------------------------
@@ -30,9 +36,9 @@ for tool in write_to_file replace_file_content invoke_subagent; do
 done
 
 # --- Subagents use the built-in self/research types -------------------------
-grep -q '`self`' "$MAPPING" \
+grep -q "${bt}self${bt}" "$MAPPING" \
   || fail "mapping does not document the built-in 'self' subagent type"
-grep -q '`research`' "$MAPPING" \
+grep -q "${bt}research${bt}" "$MAPPING" \
   || fail "mapping does not document the built-in 'research' subagent type"
 
 # --- Task tracking documents the 'task' artifact mechanism ------------------
